@@ -6,14 +6,6 @@
 
 //-----------------OLED端口定义---------------- 
 
-#define OLED_SCL_Clr() HAL_GPIO_WritePin(I2C_SCL_GPIO_Port,I2C_SCL_Pin,GPIO_PIN_RESET)//SCL
-#define OLED_SCL_Set() HAL_GPIO_WritePin(I2C_SCL_GPIO_Port,I2C_SCL_Pin,GPIO_PIN_SET)//SCL
-
-#define OLED_SDA_Clr() HAL_GPIO_WritePin(I2C_SDA_GPIO_Port,I2C_SDA_Pin,GPIO_PIN_RESET)//SCL
-#define OLED_SDA_Set() HAL_GPIO_WritePin(I2C_SDA_GPIO_Port,I2C_SDA_Pin,GPIO_PIN_SET)//SCL
-
-
-
 #define OLED_CMD  0	//写命令
 #define OLED_DATA 1	//写数据
 
@@ -24,10 +16,6 @@ typedef unsigned long u32;
 void OLED_ClearPoint(u8 x,u8 y);
 void OLED_ColorTurn(u8 i);
 void OLED_DisplayTurn(u8 i);
-void I2C_Start(void);
-void I2C_Stop(void);
-void I2C_WaitAck(void);
-void Send_Byte(u8 dat);
 void OLED_WR_Byte(u8 dat,u8 mode);
 void OLED_DisPlay_On(void);
 void OLED_DisPlay_Off(void);

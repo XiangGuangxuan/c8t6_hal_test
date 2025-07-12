@@ -1,7 +1,7 @@
 #include "oled.h"
 #include "stdlib.h"
 #include "oled_font.h"
-
+#include "i2c.h"
 
 u8 OLED_GRAM[144][8];
 
@@ -33,80 +33,17 @@ void OLED_DisplayTurn(u8 i)
 		}
 }
 
-//延时
-void IIC_delay(void)
-{
-	u8 t=3;
-	while(t--);
-}
-
-//起始信号
-void I2C_Start(void)
-{
-	OLED_SDA_Set();
-	OLED_SCL_Set();
-	IIC_delay();
-	OLED_SDA_Clr();
-	IIC_delay();
-	OLED_SCL_Clr();
-	IIC_delay();
-}
-
-//结束信号
-void I2C_Stop(void)
-{
-	OLED_SDA_Clr();
-	OLED_SCL_Set();
-	IIC_delay();
-	OLED_SDA_Set();
-}
-
-//等待信号响应
-void I2C_WaitAck(void) //测数据信号的电平
-{
-	OLED_SDA_Set();
-	IIC_delay();
-	OLED_SCL_Set();
-	IIC_delay();
-	OLED_SCL_Clr();
-	IIC_delay();
-}
-
-//写入一个字节
-void Send_Byte(u8 dat)
-{
-	u8 i;
-	for(i=0;i<8;i++)
-	{
-		if(dat&0x80)//将dat的8位从最高位依次写入
-		{
-			OLED_SDA_Set();
-    }
-		else
-		{
-			OLED_SDA_Clr();
-    }
-		IIC_delay();
-		OLED_SCL_Set();
-		IIC_delay();
-		OLED_SCL_Clr();//将时钟信号设置为低电平
-		dat<<=1;
-  }
-}
 
 //发送一个字节
 //mode:数据/命令标志 0,表示命令;1,表示数据;
 void OLED_WR_Byte(u8 dat,u8 mode)
 {
-	I2C_Start();
-	Send_Byte(0x78);
-	I2C_WaitAck();
-	if(mode){Send_Byte(0x40);}
-  else{Send_Byte(0x00);}
-	I2C_WaitAck();
-	Send_Byte(dat);
-	I2C_WaitAck();
-	I2C_Stop();
+	if(mode) {
+		HAL_I2C_Mem_Write(&hi2c1,0x78,0x40,I2C_MEMADD_SIZE_8BIT,&dat,1,0x100);
+	}
+  else {
+		HAL_I2C_Mem_Write(&hi2c1,0x78,0x00,I2C_MEMADD_SIZE_8BIT,&dat,1,0x100);
+	}	
 }
 
 //开启OLED显示 
@@ -134,17 +71,11 @@ void OLED_Refresh(void)
 		OLED_WR_Byte(0xb0+i,OLED_CMD); //设置行起始地址
 		OLED_WR_Byte(0x00,OLED_CMD);   //设置低列起始地址
 		OLED_WR_Byte(0x10,OLED_CMD);   //设置高列起始地址
-		I2C_Start();
-		Send_Byte(0x78);
-		I2C_WaitAck();
-		Send_Byte(0x40);
-		I2C_WaitAck();
+
 		for(n=0;n<128;n++)
 		{
-			Send_Byte(OLED_GRAM[n][i]);
-			I2C_WaitAck();
+			OLED_WR_Byte(OLED_GRAM[n][i],OLED_DATA);
 		}
-		I2C_Stop();
   }
 }
 //清屏函数
