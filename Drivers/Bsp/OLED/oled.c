@@ -1,5 +1,4 @@
 #include "oled.h"
-#include "stdlib.h"
 #include "oled_font.h"
 #include "i2c.h"
 
